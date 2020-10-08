@@ -31,6 +31,10 @@
 									Supprimer
 								</b-button>
 							</template>
+
+							<template v-slot:cell(detail)="row">
+								Je suis un {{ row.item.job }} avec la spécialisation {{ row.item.specialisation }} et mon {{ row.item.skillType }} préféré est {{ row.item.skill }}.
+							</template>
 						</b-table>
 					</div>
 				</div>

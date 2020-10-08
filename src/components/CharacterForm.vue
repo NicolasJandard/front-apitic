@@ -13,16 +13,16 @@
 				</b-form-select>
 			</b-form-group>
 			<b-form-group label="Classe" label-for="input-job">
-				<b-form-select id="input-job" :options="jobs" value-field="id" text-field="name">
+				<b-form-select id="input-job" :options="jobs" value-field="id" text-field="name" v-model="jobValue">
 					<template v-slot:first>
 						<option value="" disabled>- Sélectionnez votre classe -</option>
 					</template>
 				</b-form-select>
 			</b-form-group>
 			<b-form-group label="Spécialisation" label-for="input-specialisation">
-				<b-form-select id="input-specialisation" :options="specialisations" value-field="id" text-field="name">
+				<b-form-select id="input-specialisation" :options="specialisations" value-field="id" text-field="name" v-model="speValue">
 					<template v-slot:first>
-						<option value="" disabled>- TODO -</option>
+						<option value="" disabled>- Sélectionnez votre spécialisation -</option>
 					</template>
 				</b-form-select>
 			</b-form-group>
@@ -74,6 +74,10 @@
 			races: [],
 			jobs: [],
 			armors: [],
+			specialisations: [],
+			skills: [],
+			jobValue : 0,
+			speValue : 0,
 		}),
 		validations: {
 			form: {
@@ -122,6 +126,33 @@
 				return $dirty ? !$error : null
 			},
 
+			getSelectedJob : function(jobValue) {
+				this.specialisations = [];
+				this.skills = [];
+				var vm = this
+				axios.get(API_BASE_URL + '/jobs/specialisations/' + jobValue).then(function(response) {
+					vm.specialisations = response.data
+				})
+			},
+
+			getSelectedSpecialisation : function(speValue) {
+				this.skills = [];
+				var vm = this
+				axios.get(API_BASE_URL + '/specialisations/skills/' + speValue).then(function(response) {
+					vm.skills = response.data
+				})
+			},
+
+		},
+
+		watch: {
+			jobValue: function(value) {
+				this.getSelectedJob(value)
+			},
+
+			speValue: function(value) {
+				this.getSelectedSpecialisation(value)
+			}
 		}
 	}
 </script>
