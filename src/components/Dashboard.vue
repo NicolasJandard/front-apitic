@@ -10,7 +10,7 @@
 		</div>
 		<div>
 			<div v-if="isLoading">
-				<b-table :items="items" :fileds="fields" :busy="isBusy" caption-top responsive>
+				<b-table :items="formatedItems" :fileds="fields" :busy="isBusy" caption-top responsive>
 					<template v-slot:table-busy>
 						<div class="text-center text-primary my-2">
 							<div v-if="getError" class="text-danger">
@@ -25,7 +25,7 @@
 				</b-table>
 			</div>
 			<div v-else>
-				<b-table :items="items" :fields="fields" caption-top responsive>
+				<b-table table-variant="secondary" head-variant="light" :items="formatedItems" :fields="fields" caption-top responsive>
 					<template v-slot:cell(actions)="row">
 						<b-button size="sm" variant="primary" @click="edit(row.item, $event.target)" class="mr-1">
 							Modifier
@@ -148,7 +148,33 @@
 			async removeChar(item) {
 				await axios.delete(API_BASE_URL + '/characters/' + item.id)
 				await this.refreshArray()
+			},
+
+			getJobColor(job) {
+				switch(job) {
+					case "Guerrier" : return 'warning'
+					case "Mage" : return 'info'
+					case "Prêtre" : return 'light'
+					case "Chasseur" : return 'success'
+					default: return 'secondary'
+				}
 			}
+		},
+
+		computed: {
+			formatedItems() {
+				return this.items.map(item => 
+					Object.assign({}, item, {
+						_cellVariants: {
+							race : this.getJobColor(item.job),
+							health: this.getJobColor(item.job),
+							armor: this.getJobColor(item.job),
+							detail: this.getJobColor(item.job),
+							owner: this.getJobColor(item.job)
+						}
+					})
+				)
+			},
 		},
 
 		components: { CharacterForm }
