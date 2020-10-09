@@ -47,8 +47,8 @@
 			<character-form />
 		</b-modal>
 
-		<b-modal size="lg" :id="editModal.id" :title="editModal.title" :hide-footer="true" :parentData="row.item">
-			<character-form />
+		<b-modal size="lg" :id="editModal.id" :title="editModal.title" :hide-footer="true">
+			<character-form :charValues="editModal.item" />
 		</b-modal>
 
 	</b-container>

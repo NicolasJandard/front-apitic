@@ -105,6 +105,10 @@
 
 				const armorsResponse = await axios.get(API_BASE_URL + '/armors')
 				this.armors = armorsResponse.data.data
+
+				if(this.charValues) {
+					this.setDataFromParent()
+				}
 			}
 			catch(e) {
 				console.log('cc')
@@ -140,6 +144,13 @@
 				var vm = this
 				axios.get(API_BASE_URL + '/jobs/specialisations/' + jobValue).then(function(response) {
 					vm.specialisations = response.data
+					if(vm.charValues) {
+						var speId = vm.findIn(vm.specialisations, specialisation => specialisation.name == vm.charValues.specialisation)
+						if(speId >= 0) {
+							vm.speValue = vm.specialisations[speId].id
+						}
+					}
+
 				})
 			},
 
@@ -148,6 +159,12 @@
 				var vm = this
 				axios.get(API_BASE_URL + '/specialisations/skills/' + speValue).then(function(response) {
 					vm.skills = response.data
+					if(vm.charValues) {
+						var skillId = vm.findIn(vm.skills, skill => skill.name == vm.charValues.skill)
+						if(skillId >= 0) {
+							vm.skillValue = vm.skills[skillId].id
+						}
+					}
 				})
 			},
 
@@ -158,7 +175,13 @@
 				}
 				else {
 					var payload = this.createPayload();
-					axios.post(API_BASE_URL + '/characters', payload).then(res => alert(res))
+
+					if(this.charValues) {
+						axios.post(API_BASE_URL + '/characters/' + this.charValues.id , payload).then(res => alert(res))
+					}
+					else {
+						axios.post(API_BASE_URL + '/characters', payload).then(res => alert(res))
+					}
 				}
 			},
 
@@ -173,6 +196,20 @@
 					health: this.$data.form.health,
 					owner: this.$data.form.owner
 				}
+			},
+
+			setDataFromParent() {
+				this.$data.form.pseudo = this.charValues.pseudo
+				this.jobValue = this.jobs[this.findIn(this.jobs, job => job.name == this.charValues.job)].id
+				this.raceValue = this.races[this.findIn(this.races, race => race.name == this.charValues.race)].id
+				this.armorValue = this.armors[this.findIn(this.armors, armor => armor.name == this.charValues.armor)].id
+				this.$data.form.health = this.charValues.health
+				this.$data.form.owner = this.charValues.owner
+			},
+
+			findIn(array, condition) {
+				const item = array.find(condition)
+				return array.indexOf(item)
 			}
 
 		},
