@@ -31,7 +31,7 @@
 							Modifier
 						</b-button>
 
-						<b-button size="sm" variant="danger" @click="info(row.item, row.index, $event.target)" class="mr-1">
+						<b-button size="sm" variant="danger" @click="remove(row.item, $event.target)" class="mr-1">
 							Supprimer
 						</b-button>
 					</template>
@@ -49,6 +49,18 @@
 
 		<b-modal size="lg" :id="editModal.id" :title="editModal.title" :hide-footer="true">
 			<character-form :charValues="editModal.item" @change="refreshArray" />
+		</b-modal>
+
+		<b-modal size="lg" :id="deleteModal.id" :title="deleteModal.title">
+			<p class="my-2">Etes-vous sur de vouloir supprimer ce personnage ?</p>
+			<template v-slot:modal-footer>
+				<b-button size="sm" variant="danger" @click="removeChar(deleteModal.item)">
+					Supprimer le personnage
+				</b-button>
+				<b-button size="sm" variant="secondary" @click="$bvModal.hide(deleteModal.id)">
+					Annuler
+				</b-button>
+			</template>
 		</b-modal>
 
 	</b-container>
@@ -78,11 +90,17 @@
 
 				addModal: {
 					id: 'add-modal',
-					title: "Ajout d'un personnage"
+					title: ''
 				},
 
 				editModal: {
 					id: 'edit-modal',
+					title: '',
+					item: '',
+				},
+
+				deleteModal: {
+					id: 'delete-modal',
 					title: '',
 					item: '',
 				}
@@ -105,13 +123,17 @@
 				this.$root.$emit('bv::show::modal', this.addModal.id, button)
 			},
 
-			delete() {
-
+			remove(item, button) {
+				console.log("coucou")
+				this.deleteModal.title = `Suppression du personnage ${item.pseudo}`
+				this.deleteModal.item = item
+				this.$root.$emit('bv::show::modal', this.deleteModal.id, button)
 			},
 
 			async refreshArray() {
 				this.$bvModal.hide(this.addModal.id)
 				this.$bvModal.hide(this.editModal.id)
+				this.$bvModal.hide(this.deleteModal.id)
 				try {
 					const response = await axios.get(API_BASE_URL + '/characters')
 					this.items = response.data.data
@@ -121,6 +143,11 @@
 				catch(e) {
 					this.getError = true
 				}
+			},
+
+			async removeChar(item) {
+				await axios.delete(API_BASE_URL + '/characters/' + item.id)
+				await this.refreshArray()
 			}
 		},
 
