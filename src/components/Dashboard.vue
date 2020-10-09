@@ -44,11 +44,11 @@
 		</div>
 
 		<b-modal size="lg" :id="addModal.id" :title="addModal.title" :hide-footer="true">
-			<character-form />
+			<character-form @change="refreshArray" />
 		</b-modal>
 
-		<b-modal size="lg" :id="editModal.id" :title="editModal.title" :hide-footer="true" :parentData="row.item">
-			<character-form />
+		<b-modal size="lg" :id="editModal.id" :title="editModal.title" :hide-footer="true">
+			<character-form :charValues="editModal.item" @change="refreshArray" />
 		</b-modal>
 
 	</b-container>
@@ -90,15 +90,7 @@
 		},
 
 		async created() {
-			try {
-				const response = await axios.get(API_BASE_URL + '/characters')
-				this.items = response.data.data
-				this.isLoading = false
-				this.isBusy = false
-			}
-			catch(e) {
-				this.getError = true
-			}
+			this.refreshArray()
 		},
 
 		methods: {
@@ -111,6 +103,24 @@
 			add(button) {
 				this.addModal.title = "Ajout d'un personnage"
 				this.$root.$emit('bv::show::modal', this.addModal.id, button)
+			},
+
+			delete() {
+
+			},
+
+			async refreshArray() {
+				this.$bvModal.hide(this.addModal.id)
+				this.$bvModal.hide(this.editModal.id)
+				try {
+					const response = await axios.get(API_BASE_URL + '/characters')
+					this.items = response.data.data
+					this.isLoading = false
+					this.isBusy = false
+				}
+				catch(e) {
+					this.getError = true
+				}
 			}
 		},
 
