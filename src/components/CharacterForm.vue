@@ -6,7 +6,7 @@
 				</b-form-input>
 			</b-form-group>
 			<b-form-group label="Race" label-for="input-race">
-				<b-form-select id="input-race" :options="races" value-field="id" text-field="name">
+				<b-form-select id="input-race" :options="races" value-field="id" text-field="name" v-model="raceValue">
 					<template v-slot:first>
 						<option value="" disabled>- Sélectionnez votre race -</option>
 					</template>
@@ -27,9 +27,9 @@
 				</b-form-select>
 			</b-form-group>
 			<b-form-group label="Compétence préférée" label-for="input-skill">
-				<b-form-select id="input-skill" :options="skills" value-field="id" text-field="name">
+				<b-form-select id="input-skill" :options="skills" value-field="id" text-field="name" v-model="skillValue">
 					<template v-slot:first>
-						<option value="" disabled>- TODO -</option>
+						<option value="" disabled>- Sélectionnez votre compétence -</option>
 					</template>
 				</b-form-select>
 			</b-form-group>
@@ -38,7 +38,7 @@
 				</b-form-input>
 			</b-form-group>
 			<b-form-group label="Type d'armure" label-for="input-armor">
-				<b-form-select id="input-armor" :options="armors" value-field="id" text-field="name">
+				<b-form-select id="input-armor" :options="armors" value-field="id" text-field="name" v-model="armorValue">
 					<template v-slot:first>
 						<option value="" disabled>- Sélectionnez votre type d'armure -</option>
 					</template>
@@ -48,7 +48,7 @@
 				<b-form-input id="input-owner" v-model="$v.form.owner.$model" :state="validationState($v.form.owner)">
 				</b-form-input>
 			</b-form-group>
-			<b-button type="submit" variant="primary">Valider</b-button>
+			<b-button type="submit" variant="primary" @click="submitForm">Valider</b-button>
 		</b-form>
 	</div>
 </template>
@@ -60,6 +60,11 @@
 
 	export default {
 		name: 'CharacterForm',
+		
+		props: {
+			charValues : Object
+		},
+		
 		data: () => ({
 			form: {
 				pseudo: '',
@@ -78,6 +83,9 @@
 			skills: [],
 			jobValue : 0,
 			speValue : 0,
+			raceValue : 0,
+			armorValue : 0,
+			skillValue : 0,
 		}),
 		validations: {
 			form: {
@@ -142,6 +150,30 @@
 					vm.skills = response.data
 				})
 			},
+
+			submitForm() {
+				this.$v.$touch
+				if(this.$v.$invalid) {
+					alert("Nope")
+				}
+				else {
+					var payload = this.createPayload();
+					axios.post(API_BASE_URL + '/characters', payload).then(res => alert(res))
+				}
+			},
+
+			createPayload() {
+				return {
+					pseudo: this.$data.form.pseudo,
+					race_id: this.raceValue,
+					job_id: this.jobValue,
+					specialisation_id: this.speValue,
+					skill_id: this.skillValue,
+					armor_id: this.armorValue,
+					health: this.$data.form.health,
+					owner: this.$data.form.owner
+				}
+			}
 
 		},
 

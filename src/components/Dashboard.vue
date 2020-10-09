@@ -1,50 +1,53 @@
 <template>
-	<b-container fluid>
-		<b-tabs>
-			<b-tab title="Dashboard">
-				<div>
+	<b-container fluid class="mt-2">
+		<div>
+			<h1>Gestion des personnages de la guilde de Tom</h1>
+		</div>
+		<div class="mb-2 mt-2">
+			<b-button size="md" variant="success" @click="add($event.target)" class="mr-1">
+				Ajouter un personnage
+			</b-button>
+		</div>
+		<div>
+			<div v-if="isLoading">
+				<b-table :items="items" :fileds="fields" :busy="isBusy" caption-top responsive>
+					<template v-slot:table-busy>
+						<div class="text-center text-primary my-2">
+							<div v-if="getError" class="text-danger">
+								<strong>Chargement échoué</strong> 
+							</div>
+							<div v-else>
+								<b-spinner class="align-middle"></b-spinner>
+								<strong> Chargement des personnages...</strong>
+							</div>
+						</div>
+					</template>
+				</b-table>
+			</div>
+			<div v-else>
+				<b-table :items="items" :fields="fields" caption-top responsive>
+					<template v-slot:cell(actions)="row">
+						<b-button size="sm" variant="primary" @click="edit(row.item, $event.target)" class="mr-1">
+							Modifier
+						</b-button>
 
-					<div v-if="isLoading">
-						<b-table :items="items" :fileds="fields" :busy="isBusy">
-							<template v-slot:table-busy>
-								<div class="text-center text-primary my-2">
-									<div v-if="getError" class="text-danger">
-										<strong>Chargement échoué</strong> 
-									</div>
-									<div v-else>
-										<b-spinner class="align-middle"></b-spinner>
-										<strong> Chargement des personnages...</strong>
-									</div>
-								</div>
-							</template>
-						</b-table>
-					</div>
+						<b-button size="sm" variant="danger" @click="info(row.item, row.index, $event.target)" class="mr-1">
+							Supprimer
+						</b-button>
+					</template>
 
-					<div v-else>
-						<b-table responsive :items="items" :fields="fields">
-							<template v-slot:cell(actions)="row">
-								<b-button size="sm" variant="primary" @click="edit(row.item, $event.target)" class="mr-1">
-									Modifier
-								</b-button>
+					<template v-slot:cell(detail)="row">
+						Je suis un {{ row.item.job }} avec la spécialisation {{ row.item.specialisation }} et mon {{ row.item.skillType }} préféré est {{ row.item.skill }}.
+					</template>
+				</b-table>
+			</div>
+		</div>
 
-								<b-button size="sm" variant="danger" @click="info(row.item, row.index, $event.target)" class="mr-1">
-									Supprimer
-								</b-button>
-							</template>
+		<b-modal size="lg" :id="addModal.id" :title="addModal.title" :hide-footer="true">
+			<character-form />
+		</b-modal>
 
-							<template v-slot:cell(detail)="row">
-								Je suis un {{ row.item.job }} avec la spécialisation {{ row.item.specialisation }} et mon {{ row.item.skillType }} préféré est {{ row.item.skill }}.
-							</template>
-						</b-table>
-					</div>
-				</div>
-			</b-tab>
-			<b-tab title="Ajouter un personnage">
-				Contents 2
-			</b-tab>
-		</b-tabs>
-
-		<b-modal size="lg" :id="editModal.id" :title="editModal.title">
+		<b-modal size="lg" :id="editModal.id" :title="editModal.title" :hide-footer="true" :parentData="row.item">
 			<character-form />
 		</b-modal>
 
@@ -72,6 +75,12 @@
 					{ key:'actions', label: 'Actions' }
 				],
 				items: [],
+
+				addModal: {
+					id: 'add-modal',
+					title: "Ajout d'un personnage"
+				},
+
 				editModal: {
 					id: 'edit-modal',
 					title: '',
@@ -97,6 +106,11 @@
 				this.editModal.title = `Modification du personnage ${item.pseudo}`
 				this.editModal.item = item
 				this.$root.$emit('bv::show::modal', this.editModal.id, button)
+			},
+
+			add(button) {
+				this.addModal.title = "Ajout d'un personnage"
+				this.$root.$emit('bv::show::modal', this.addModal.id, button)
 			}
 		},
 
