@@ -1,6 +1,6 @@
 <template>
 	<div>
-		<b-form ref="form" @submit.prevent="submit">
+		<b-form ref="form" @submit.prevent="submitForm">
 			<b-form-group label="Pseudo" label-for="input-pseudo" invalid-feedback="Un pseudo est requis">
 				<b-form-input id="input-pseudo" v-model="$v.form.pseudo.$model" :state="validationState($v.form.pseudo)">
 				</b-form-input>
@@ -48,7 +48,7 @@
 				<b-form-input id="input-owner" v-model="$v.form.owner.$model" :state="validationState($v.form.owner)">
 				</b-form-input>
 			</b-form-group>
-			<b-button type="submit" variant="primary" @click="submitForm">Valider</b-button>
+			<b-button type="submit" variant="primary">Valider</b-button>
 		</b-form>
 	</div>
 </template>
@@ -170,6 +170,7 @@
 
 			submitForm() {
 				this.$v.$touch
+				var vm = this
 				if(this.$v.$invalid) {
 					alert("Nope")
 				}
@@ -177,10 +178,16 @@
 					var payload = this.createPayload();
 
 					if(this.charValues) {
-						axios.post(API_BASE_URL + '/characters/' + this.charValues.id , payload).then(res => alert(res))
+						axios.post(API_BASE_URL + '/characters/' + this.charValues.id , payload).then(function() {
+							vm.$emit('change', 'refreshArray')
+							alert("Personnage modifié")
+						})
 					}
 					else {
-						axios.post(API_BASE_URL + '/characters', payload).then(res => alert(res))
+						axios.post(API_BASE_URL + '/characters', payload).then(function() {
+							vm.$emit('change', 'refreshArray')
+							alert("Personnage ajouté")
+						})
 					}
 				}
 			},
